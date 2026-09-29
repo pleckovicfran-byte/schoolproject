@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fran School Life Chart</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top, #18233d 0%, #090d18 48%, #05070d 100%);
+  color: white;
+  padding: 20px;
+}
+
+/* BACK / UNDO BUTTON */
+
+.back-button {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(20,27,43,.9);
+  color: white;
+  font-size: 25px;
+  cursor: pointer;
+  z-index: 1000;
+  backdrop-filter: blur(12px);
+  transition: .2s;
+}
+
+.back-button:hover {
+  background: #293651;
+  transform: translateX(-2px);
+}
+
+.back-button:active {
+  transform: scale(.92);
+}
+
+/* APP */
+
+.app {
+  width: 100%;
+  max-width: 1050px;
+  margin: 35px auto 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.subtitle {
+  color: #8995aa;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  padding: 9px 13px;
+  border-radius: 12px;
+  color: #aeb8ca;
+  font-size: 12px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #39e58c;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #39e58c;
+}
+
+/* CARD */
+
+.card {
+  background: rgba(13,18,31,.9);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 25px 70px rgba(0,0,0,.35);
+  backdrop-filter: blur(20px);
+}
+
+/* PRICE */
+
+.price-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+}
+
+.label {
+  color: #8995aa;
+  font-size: 13px;
+  margin-bottom: 7px;
+}
+
+.price {
+  font-size: clamp(42px, 7vw, 70px);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.change {
+  margin-top: 9px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.up {
+  color: #35e58a;
+}
+
+.down {
+  color: #ff5e72;
+}
+
+.neutral {
+  color: #9aa6ba;
+}
+
+/* CHART */
+
+.chart-box {
+  position: relative;
+  height: 430px;
+  background: rgba(5,9,17,.7);
+  border-radius: 17px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* UPDATE PANEL */
+
+.update-panel {
+  margin-top: 18px;
+  padding: 16px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 15px;
+}
+
+.update-title {
+  font-size: 13px;
+  color: #8995aa;
+  margin-bottom: 10px;
+}
+
+.update-row {
+  display: flex;
+  gap: 10px;
+}
+
+#priceInput {
+  flex: 1;
+  min-width: 0;
+  background: #0a0f1c;
+  border: 1px solid rgba(255,255,255,.1);
+  color: white;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 16px;
+  outline: none;
+  font-variant-numeric: tabular-nums;
+}
+
+#priceInput:focus {
+  border-color: #426cff;
+  box-shadow: 0 0 0 3px rgba(66,108,255,.12);
+}
+
+.update-button {
+  background: #2c5cff;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.update-button:hover {
+  background: #426cff;
+  transform: translateY(-1px);
+}
+
+.update-button:active {
+  transform: scale(.97);
+}
+
+/* INFO */
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.info {
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.06);
+  padding: 14px;
+  border-radius: 13px;
+}
+
+.info span {
+  display: block;
+  color: #7f8aa0;
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.info strong {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* FOOTER */
+
+.footer {
+  text-align: center;
+  color: #606b7f;
+  font-size: 11px;
+  margin-top: 15px;
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+  body {
+    padding: 14px;
+  }
+
+  .app {
+    margin-top: 55px;
+  }
+
+  .status {
+    display: none;
+  }
+
+  .title {
+    font-size: 21px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .chart-box {
+    height: 350px;
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .update-row {
+    flex-direction: column;
+  }
+
+  .update-button {
+    height: 45px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- KORAK NAZAD / UNDO -->
+
+<button
+  class="back-button"
+  onclick="undoLastUpdate()"
+  title="Poništi zadnju promjenu"
+>
+  ←
+</button>
+
+
+<div class="app">
+
+  <div class="header">
+
+    <div>
+      <div class="title">
+        📈 Fran School Life Chart
+      </div>
+
+      <div class="subtitle">
+        School-life price chart
+      </div>
+    </div>
+
+    <div class="status">
+      <div class="dot"></div>
+      Market Open
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <!-- CURRENT PRICE -->
+
+    <div class="price-section">
+
+      <div>
+
+        <div class="label">
+          FRAN SCHOOL LIFE
+        </div>
+
+        <div
+          id="price"
+          class="price neutral"
+        >
+          1.00000
+        </div>
+
+        <div
+          id="change"
+          class="change neutral"
+        >
+          0.00000 (0.00%)
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- CHART -->
+
+    <div class="chart-box">
+      <canvas id="chart"></canvas>
+    </div>
+
+
+    <!-- MANUAL UPDATE -->
+
+    <div class="update-panel">
+
+      <div class="update-title">
+        Ažuriraj cijenu
+      </div>
+
+      <div class="update-row">
+
+        <input
+          id="priceInput"
+          type="number"
+          step="0.00001"
+          min="0"
+          placeholder="Npr. 1.05432"
+        >
+
+        <button
+          class="update-button"
+          onclick="updatePrice()"
+        >
+          Ažuriraj cijenu
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- INFORMATION -->
+
+    <div class="info-grid">
+
+      <div class="info">
+        <span>POČETNA</span>
+        <strong id="open">1.00000</strong>
+      </div>
+
+      <div class="info">
+        <span>NAJVIŠA</span>
+        <strong id="high">1.00000</strong>
+      </div>
+
+      <div class="info">
+        <span>NAJNIŽA</span>
+        <strong id="low">1.00000</strong>
+      </div>
+
+      <div class="info">
+        <span>ZADNJA</span>
+        <strong id="last">1.00000</strong>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer">
+    Fran School Life Chart • Manual price updates
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   VARIABLES
+========================= */
+
+const canvas =
+  document.getElementById("chart");
+
+const ctx =
+  canvas.getContext("2d");
+
+const priceElement =
+  document.getElementById("price");
+
+const changeElement =
+  document.getElementById("change");
+
+const input =
+  document.getElementById("priceInput");
+
+const openElement =
+  document.getElementById("open");
+
+const highElement =
+  document.getElementById("high");
+
+const lowElement =
+  document.getElementById("low");
+
+const lastElement =
+  document.getElementById("last");
+
+
+const START_PRICE = 1.00000;
+
+
+/*
+  Trenutna cijena
+*/
+
+let price = START_PRICE;
+
+
+/*
+  Povijest cijena.
+
+  Ovo služi za graf i UNDO.
+*/
+
+let history = [
+  START_PRICE
+];
+
+
+/*
+  Maksimalan broj točaka
+  prikazanih na grafu.
+*/
+
+const MAX_POINTS = 100;
+
+
+/* =========================
+   CANVAS
+========================= */
+
+function resizeCanvas() {
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+  const dpr =
+    window.devicePixelRatio || 1;
+
+  canvas.width =
+    rect.width * dpr;
+
+  canvas.height =
+    rect.height * dpr;
+
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
+
+  drawChart();
+}
+
+
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+
+/* =========================
+   MANUAL PRICE UPDATE
+========================= */
+
+function updatePrice() {
+
+  let value =
+    Number(input.value);
+
+
+  /*
+    Provjera
+  */
+
+  if (
+    !Number.isFinite(value) ||
+    value < 0
+  ) {
+
+    alert(
+      "Unesi ispravnu cijenu."
+    );
+
+    return;
+  }
+
+
+  /*
+    Ograničavanje na 5 decimala
+  */
+
+  value =
+    Number(
+      value.toFixed(5)
+    );
+
+
+  /*
+    Ako je ista cijena,
+    ne stvaramo novu točku.
+  */
+
+  if (value === price) {
+
+    input.value = "";
+
+    return;
+  }
+
+
+  /*
+    SPREMI NOVU CIJENU
+  */
+
+  price = value;
+
+
+  /*
+    Dodaj u povijest
+  */
+
+  history.push(price);
+
+
+  /*
+    Graf ne prikazuje više
+    od MAX_POINTS točaka.
+  */
+
+  if (
+    history.length > MAX_POINTS
+  ) {
+
+    history.shift();
+
+  }
+
+
+  updateUI();
+
+  drawChart();
+
+
+  /*
+    Očisti input
+  */
+
+  input.value = "";
+
+}
+
+
+/* =========================
+   ENTER ZA UPDATE
+========================= */
+
+input.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (
+      event.key === "Enter"
+    ) {
+
+      updatePrice();
+
+    }
+
+  }
+);
+
+
+/* =========================
+   UNDO / KORAK NAZAD
+========================= */
+
+function undoLastUpdate() {
+
+  /*
+    Ako nema prethodne cijene,
+    ništa se ne radi.
+  */
+
+  if (history.length <= 1) {
+
+    return;
+  }
+
+
+  /*
+    Izbriši zadnju ažuriranu cijenu.
+  */
+
+  history.pop();
+
+
+  /*
+    Vrati prethodnu cijenu.
+  */
+
+  price =
+    history[
+      history.length - 1
+    ];
+
+
+  updateUI();
+
+  drawChart();
+
+}
+
+
+/* =========================
+   UPDATE UI
+========================= */
+
+function updateUI() {
+
+  const difference =
+    price - START_PRICE;
+
+
+  const percentage =
+    difference /
+    START_PRICE *
+    100;
+
+
+  /*
+    CURRENT PRICE
+  */
+
+  priceElement.textContent =
+    price.toFixed(5);
+
+
+  /*
+    CHANGE
+  */
+
+  changeElement.textContent =
+    `${difference >= 0 ? "+" : ""}${difference.toFixed(5)}
+    (${percentage >= 0 ? "+" : ""}${percentage.toFixed(2)}%)`;
+
+
+  /*
+    COLORS
+  */
+
+  priceElement.classList.remove(
+    "up",
+    "down",
+    "neutral"
+  );
+
+  changeElement.classList.remove(
+    "up",
+    "down",
+    "neutral"
+  );
+
+
+  if (
+    difference > 0
+  ) {
+
+    priceElement.classList.add(
+      "up"
+    );
+
+    changeElement.classList.add(
+      "up"
+    );
+
+  }
+
+  else if (
+    difference < 0
+  ) {
+
+    priceElement.classList.add(
+      "down"
+    );
+
+    changeElement.classList.add(
+      "down"
+    );
+
+  }
+
+  else {
+
+    priceElement.classList.add(
+      "neutral"
+    );
+
+    changeElement.classList.add(
+      "neutral"
+    );
+
+  }
+
+
+  /*
+    OPEN
+  */
+
+  openElement.textContent =
+    START_PRICE.toFixed(5);
+
+
+  /*
+    HIGH
+  */
+
+  const highest =
+    Math.max(...history);
+
+  highElement.textContent =
+    highest.toFixed(5);
+
+
+  /*
+    LOW
+  */
+
+  const lowest =
+    Math.min(...history);
+
+  lowElement.textContent =
+    lowest.toFixed(5);
+
+
+  /*
+    LAST
+  */
+
+  lastElement.textContent =
+    price.toFixed(5);
+
+}
+
+
+/* =========================
+   DRAW CHART
+========================= */
+
+function drawChart() {
+
+  const width =
+    canvas.clientWidth;
+
+  const height =
+    canvas.clientHeight;
+
+
+  if (
+    !width ||
+    !height ||
+    history.length === 0
+  ) {
+
+    return;
+  }
+
+
+  /*
+    CLEAR
+  */
+
+  ctx.clearRect(
+    0,
+    0,
+    width,
+    height
+  );
+
+
+  /*
+    GRID
+  */
+
+  ctx.lineWidth = 1;
+
+  ctx.strokeStyle =
+    "rgba(255,255,255,.055)";
+
+
+  for (
+    let i = 1;
+    i < 6;
+    i++
+  ) {
+
+    const y =
+      height / 6 * i;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      0,
+      y
+    );
+
+    ctx.lineTo(
+      width,
+      y
+    );
+
+    ctx.stroke();
+
+  }
+
+
+  for (
+    let i = 1;
+    i < 10;
+    i++
+  ) {
+
+    const x =
+      width / 10 * i;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x,
+      0
+    );
+
+    ctx.lineTo(
+      x,
+      height
+    );
+
+    ctx.stroke();
+
+  }
+
+
+  /*
+    MIN / MAX
+  */
+
+  const min =
+    Math.min(...history);
+
+  const max =
+    Math.max(...history);
+
+
+  let range =
+    max - min;
+
+
+  /*
+    Ako je cijena još uvijek
+    1.00000, napravimo umjetni
+    mali raspon da se graf vidi.
+  */
+
+  if (
+    range < 0.00001
+  ) {
+
+    range = 0.01;
+
+  }
+
+
+  const padding =
+    range * 0.25;
+
+
+  const chartMin =
+    min - padding;
+
+  const chartMax =
+    max + padding;
+
+
+  /*
+    GRADIENT
+  */
+
+  const gradient =
+    ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      height
+    );
+
+
+  if (
+    price >= START_PRICE
+  ) {
+
+    gradient.addColorStop(
+      0,
+      "rgba(53,229,138,.25)"
+    );
+
+    gradient.addColorStop(
+      1,
+      "rgba(53,229,138,0)"
+    );
+
+  }
+
+  else {
+
+    gradient.addColorStop(
+      0,
+      "rgba(255,94,114,.25)"
+    );
+
+    gradient.addColorStop(
+      1,
+      "rgba(255,94,114,0)"
+    );
+
+  }
+
+
+  /*
+    FILL
+  */
+
+  ctx.beginPath();
+
+
+  history.forEach(
+    (value, index) => {
+
+      let x;
+
+      if (
+        history.length === 1
+      ) {
+
+        x = width / 2;
+
+      } else {
+
+        x =
+          index /
+          (history.length - 1) *
+          width;
+
+      }
+
+
+      const y =
+        height -
+        (
+          (value - chartMin) /
+          (chartMax - chartMin)
+        ) *
+        height;
+
+
+      if (
+        index === 0
+      ) {
+
+        ctx.moveTo(
+          x,
+          y
+        );
+
+      } else {
+
+        ctx.lineTo(
+          x,
+          y
+        );
+
+      }
+
+    }
+  );
+
+
+  ctx.lineTo(
+    width,
+    height
+  );
+
+  ctx.lineTo(
+    0,
+    height
+  );
+
+  ctx.closePath();
+
+  ctx.fillStyle =
+    gradient;
+
+  ctx.fill();
+
+
+  /*
+    LINE
+  */
+
+  ctx.beginPath();
+
+
+  history.forEach(
+    (value, index) => {
+
+      let x;
+
+      if (
+        history.length === 1
+      ) {
+
+        x = width / 2;
+
+      } else {
+
+        x =
+          index /
+          (history.length - 1) *
+          width;
+
+      }
+
+
+      const y =
+        height -
+        (
+          (value - chartMin) /
+          (chartMax - chartMin)
+        ) *
+        height;
+
+
+      if (
+        index === 0
+      ) {
+
+        ctx.moveTo(
+          x,
+          y
+        );
+
+      } else {
+
+        ctx.lineTo(
+          x,
+          y
+        );
+
+      }
+
+    }
+  );
+
+
+  ctx.lineWidth = 3;
+
+  ctx.strokeStyle =
+    price >= START_PRICE
+      ? "#35e58a"
+      : "#ff5e72";
+
+  ctx.stroke();
+
+
+  /*
+    CURRENT PRICE DOT
+  */
+
+  let lastX;
+
+  if (
+    history.length === 1
+  ) {
+
+    lastX =
+      width / 2;
+
+  } else {
+
+    lastX =
+      width;
+
+  }
+
+
+  const lastY =
+    height -
+    (
+      (price - chartMin) /
+      (chartMax - chartMin)
+    ) *
+    height;
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    lastX,
+    lastY,
+    5,
+    0,
+    Math.PI * 2
+  );
+
+
+  ctx.fillStyle =
+    price >= START_PRICE
+      ? "#35e58a"
+      : "#ff5e72";
+
+  ctx.fill();
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+resizeCanvas();
+
+updateUI();
+
+</script>
+
+</body>
+</html>
